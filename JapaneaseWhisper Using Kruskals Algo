@@ -1,0 +1,107 @@
+/******************************************************************************
+
+Welcome to GDB Online.
+  GDB online is an online compiler and debugger tool for C, C++, Python, PHP, Ruby, 
+  C#, OCaml, VB, Perl, Swift, Prolog, Javascript, Pascal, COBOL, HTML, CSS, JS
+  Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 500
+
+typedef struct {
+    int u, v, w;
+} Edge;
+
+int parent[MAX];
+
+int find(int x) {
+    if (parent[x] == x)
+        return x;
+    return find(parent[x]);
+}
+
+void union1(int x, int y) {
+    int xroot = find(x);
+    int yroot = find(y);
+    if (xroot != yroot)
+        parent[yroot] = xroot;
+}
+
+int myComp(const void *a, const void *b) {
+    Edge *a1 = (Edge *)a;
+    Edge *b1 = (Edge *)b;
+    return a1->w > b1->w;
+}
+
+int getIndex(char *word, char **words, int size) {
+    for (int i = 0; i < size; i++) {
+        if (strcmp(word, words[i]) == 0)
+            return i;
+    }
+    return -1;
+}
+
+void kruskal(Edge edges[], int n, int startWordIndex, int endWordIndex) {
+    int i = 0;
+    int e = 0;
+
+    while (e < n - 1) {
+        i = getIndex(edges[i].node1, words, n);
+        int x = find(i);
+
+        i = getIndex(edges[i].node2, words, n);
+        int y = find(i);
+
+        if (x != y) {
+            union1(x, y);
+            e++;
+        }
+        i++;
+    }
+
+    if (find(startWordIndex) == find(endWordIndex))
+        printf("There is a secret word path.\n");
+    else
+        printf("There is no secret word path.\n");
+}
+
+int main() {
+    char words[MAX][MAX];
+    int n;
+    printf("Enter the number of words: ");
+    scanf("%d", &n);
+    printf("Enter the words:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%s", words[i]);
+    }
+
+    int edges[MAX][MAX];
+    printf("Enter the edges (u, v, w):\n");
+    for (int i = 0; i < n - 1; i++) {
+        int u, v, w;
+        scanf("%d %d %d", &u, &v, &w);
+        edges[i][0] = u;
+        edges[i][1] = v;
+        edges[i][2] = w;
+    }
+
+    Edge newEdges[MAX];
+    for (int i = 0; i < n - 1; i++) {
+        newEdges[i].u = edges[i][0];
+        newEdges[i].v = edges[i][1];
+        newEdges[i].w = edges[i][2];
+    }
+
+    qsort(newEdges, n - 1, sizeof(newEdges[0]), myComp);
+
+    int startWordIndex = getIndex("word1", words, n);
+    int endWordIndex = getIndex("word2", words, n);
+
+    kruskal(newEdges, n, startWordIndex, endWordIndex);
+
+    return 0;
+}
